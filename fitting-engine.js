@@ -18,7 +18,7 @@ function getAPIConfig() {
         
         // ⚠️ 배포 후 Railway URL로 업데이트하세요!
         // Railway 배포 완료 후 이 URL을 실제 주소로 변경
-        const backendUrl = 'https://iburba-api-production.up.railway.app';
+        const backendUrl = 'https://web-production-22c96.up.railway.app';
         
         return {
             API_URL: `${backendUrl}/api/pwa/virtual-tryon`,
