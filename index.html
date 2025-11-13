@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#667eea">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="iBurBa">
+    <title>iBurBa - Shopping Hub</title>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- 아이콘 -->
+    <link rel="apple-touch-icon" href="icon-192.png">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        /* 헤더 */
+        .header {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            color: rgba(255,255,255,0.9);
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        /* 컨테이너 */
+        .container {
+            padding: 15px;
+        }
+
+        /* 검색 박스 */
+        .search-box {
+            margin-bottom: 15px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 15px 20px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            background: white;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        /* 필터 */
+        .filters {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            margin-bottom: 15px;
+            padding-bottom: 5px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .filters::-webkit-scrollbar {
+            display: none;
+        }
+
+        .filter-btn {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 20px;
+            background: white;
+            color: #667eea;
+            font-size: 14px;
+            font-weight: 600;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.3s;
+            flex-shrink: 0;
+        }
+
+        .filter-btn.active {
+            background: white;
+            color: #667eea;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            transform: scale(1.05);
+        }
+
+        /* 탭 */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            background: rgba(255,255,255,0.2);
+            padding: 8px;
+            border-radius: 12px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: transparent;
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .tab-btn.active {
+            background: white;
+            color: #667eea;
+        }
+
+        /* 쇼핑몰 그리드 */
+        .mall-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        /* 쇼핑몰 카드 */
+        .mall-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+        }
+
+        .mall-card:active {
+            transform: scale(0.95);
+        }
+
+        .mall-logo {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+
+        .mall-name {
+            color: #1f2937;
+            font-weight: 700;
+            font-size: 14px;
+            text-align: center;
+            margin-bottom: 4px;
+        }
+
+        .mall-category {
+            color: #6b7280;
+            font-size: 11px;
+            text-align: center;
+        }
+
+        /* 즐겨찾기 버튼 */
+        .favorite-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255,255,255,0.9);
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        .favorite-btn.active {
+            color: #fbbf24;
+        }
+
+        /* HOT 뱃지 */
+        .hot-badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: #ef4444;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        /* 빈 상태 */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: white;
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .empty-state-text {
+            font-size: 1.1rem;
+            opacity: 0.8;
+        }
+
+        /* 설치 안내 배너 */
+        .install-banner {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: white;
+            padding: 16px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            display: none;
+            align-items: center;
+            gap: 12px;
+            z-index: 1000;
+        }
+
+        .install-banner.show {
+            display: flex;
+        }
+
+        .install-icon {
+            font-size: 2rem;
+        }
+
+        .install-text {
+            flex: 1;
+        }
+
+        .install-text h3 {
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .install-text p {
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .install-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .install-close {
+            background: transparent;
+            border: none;
+            font-size: 24px;
+            color: #9ca3af;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+        }
+
+        /* 로딩 */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: white;
+        }
+
+        .spinner {
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top: 3px solid white;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- 헤더 -->
+    <div class="header">
+        <h1>🛍️ iBurBa</h1>
+        <p>전 세계 쇼핑몰 허브</p>
+    </div>
+
+    <!-- 컨테이너 -->
+    <div class="container">
+        <!-- 검색 박스 -->
+        <div class="search-box">
+            <input 
+                type="search" 
+                class="search-input" 
+                id="searchInput"
+                placeholder="🔍 쇼핑몰 검색..."
+            >
+        </div>
+
+        <!-- 탭 -->
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="all">전체</button>
+            <button class="tab-btn" data-tab="favorites">⭐ 즐겨찾기</button>
+        </div>
+
+        <!-- 필터 -->
+        <div class="filters" id="filters">
+            <!-- JavaScript로 동적 생성 -->
+        </div>
+
+        <!-- 쇼핑몰 그리드 -->
+        <div class="mall-grid" id="mallGrid">
+            <!-- JavaScript로 동적 생성 -->
+        </div>
+
+        <!-- 빈 상태 -->
+        <div class="empty-state" id="emptyState" style="display: none;">
+            <div class="empty-state-icon">🔍</div>
+            <div class="empty-state-text">검색 결과가 없습니다</div>
+        </div>
+    </div>
+
+    <!-- 설치 배너 -->
+    <div class="install-banner" id="installBanner">
+        <div class="install-icon">📱</div>
+        <div class="install-text">
+            <h3>홈 화면에 추가</h3>
+            <p>앱처럼 빠르게 접속하세요</p>
+        </div>
+        <button class="install-btn" id="installBtn">설치</button>
+        <button class="install-close" id="installClose">×</button>
+    </div>
+
+    <script>
+        // ==========================================
+        // 🎯 쇼핑몰 데이터
+        // ==========================================
+        const shoppingMalls = [
+            // 한국
+            { id: 1, name: '무신사', logo: '👕', url: 'https://www.musinsa.com', category: '패션', country: 'korea', popular: true },
+            { id: 2, name: '에이블리', logo: '👗', url: 'https://www.a-bly.com', category: '패션', country: 'korea', popular: true },
+            { id: 3, name: '지그재그', logo: '⚡', url: 'https://www.zigzag.kr', category: '패션', country: 'korea', popular: true },
+            { id: 4, name: 'W컨셉', logo: '🎨', url: 'https://www.wconcept.co.kr', category: '패션', country: 'korea' },
+            { id: 5, name: '29CM', logo: '🌿', url: 'https://www.29cm.co.kr', category: '패션', country: 'korea' },
+            { id: 6, name: '쿠팡', logo: '🎁', url: 'https://www.coupang.com', category: '종합', country: 'korea', popular: true },
+            { id: 7, name: 'SSF샵', logo: '💎', url: 'https://www.ssfshop.com', category: '패션', country: 'korea' },
+            { id: 8, name: '하프클럽', logo: '✨', url: 'https://www.half.com', category: '종합', country: 'korea' },
+
+            // 미국
+            { id: 9, name: 'Amazon', logo: '📦', url: 'https://www.amazon.com', category: '종합', country: 'usa', popular: true },
+            { id: 10, name: 'ASOS', logo: '🎭', url: 'https://www.asos.com', category: '패션', country: 'usa', popular: true },
+            { id: 11, name: 'Zara', logo: '🖤', url: 'https://www.zara.com', category: '패션', country: 'usa', popular: true },
+            { id: 12, name: 'H&M', logo: '🔴', url: 'https://www.hm.com', category: '패션', country: 'usa' },
+            { id: 13, name: 'Nike', logo: '✔️', url: 'https://www.nike.com', category: '스포츠', country: 'usa', popular: true },
+            { id: 14, name: 'Adidas', logo: '⚫', url: 'https://www.adidas.com', category: '스포츠', country: 'usa' },
+
+            // 일본
+            { id: 15, name: 'Uniqlo', logo: '🟥', url: 'https://www.uniqlo.com/jp', category: '패션', country: 'japan', popular: true },
+            { id: 16, name: 'GU', logo: '🟦', url: 'https://www.gu-global.com/jp', category: '패션', country: 'japan' },
+            { id: 17, name: 'Zozo', logo: '🎪', url: 'https://zozo.jp', category: '패션', country: 'japan', popular: true },
+            { id: 18, name: '라쿠텐', logo: '🛒', url: 'https://www.rakuten.co.jp', category: '종합', country: 'japan' },
+
+            // 중국
+            { id: 19, name: 'Taobao', logo: '🟠', url: 'https://www.taobao.com', category: '종합', country: 'china', popular: true },
+            { id: 20, name: 'Tmall', logo: '🐱', url: 'https://www.tmall.com', category: '종합', country: 'china', popular: true },
+            { id: 21, name: 'AliExpress', logo: '🔶', url: 'https://www.aliexpress.com', category: '종합', country: 'china', popular: true },
+
+            // 유럽
+            { id: 22, name: 'Zalando', logo: '🎨', url: 'https://www.zalando.com', category: '패션', country: 'europe' },
+            { id: 23, name: 'About You', logo: '💫', url: 'https://www.aboutyou.com', category: '패션', country: 'europe' },
+            { id: 24, name: 'Farfetch', logo: '👑', url: 'https://www.farfetch.com', category: '럭셔리', country: 'europe', popular: true },
+            { id: 25, name: 'Net-a-Porter', logo: '🌟', url: 'https://www.net-a-porter.com', category: '럭셔리', country: 'europe' },
+
+            // 기타
+            { id: 26, name: 'Shein', logo: '🌈', url: 'https://www.shein.com', category: '패션', country: 'global', popular: true },
+            { id: 27, name: 'Yesstyle', logo: '🌸', url: 'https://www.yesstyle.com', category: '뷰티', country: 'global' },
+            { id: 28, name: 'Stylenanda', logo: '💄', url: 'https://www.stylenanda.com', category: '패션', country: 'korea' },
+        ];
+
+        // ==========================================
+        // 🎯 상태 관리
+        // ==========================================
+        let currentTab = 'all';
+        let currentFilter = 'all';
+        let searchQuery = '';
+        let favorites = JSON.parse(localStorage.getItem('ib_favorites') || '[]');
+
+        // ==========================================
+        // 🎯 필터 생성
+        // ==========================================
+        function createFilters() {
+            const filters = [
+                { value: 'all', label: '🌍 전체', emoji: '🌍' },
+                { value: 'korea', label: '🇰🇷 한국', emoji: '🇰🇷' },
+                { value: 'usa', label: '🇺🇸 미국', emoji: '🇺🇸' },
+                { value: 'japan', label: '🇯🇵 일본', emoji: '🇯🇵' },
+                { value: 'china', label: '🇨🇳 중국', emoji: '🇨🇳' },
+                { value: 'europe', label: '🇪🇺 유럽', emoji: '🇪🇺' },
+            ];
+
+            const filtersHtml = filters.map(filter => `
+                <button 
+                    class="filter-btn ${filter.value === 'all' ? 'active' : ''}" 
+                    data-filter="${filter.value}"
+                >
+                    ${filter.label}
+                </button>
+            `).join('');
+
+            document.getElementById('filters').innerHTML = filtersHtml;
+
+            // 필터 클릭 이벤트
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentFilter = btn.dataset.filter;
+                    renderMalls();
+                });
+            });
+        }
+
+        // ==========================================
+        // 🎯 쇼핑몰 렌더링
+        // ==========================================
+        function renderMalls() {
+            let filteredMalls = shoppingMalls;
+
+            // 탭 필터
+            if (currentTab === 'favorites') {
+                filteredMalls = filteredMalls.filter(mall => favorites.includes(mall.id));
+            }
+
+            // 국가 필터
+            if (currentFilter !== 'all') {
+                filteredMalls = filteredMalls.filter(mall => mall.country === currentFilter);
+            }
+
+            // 검색 필터
+            if (searchQuery) {
+                filteredMalls = filteredMalls.filter(mall => 
+                    mall.name.toLowerCase().includes(searchQuery.toLowerCase())
+                );
+            }
+
+            const mallGrid = document.getElementById('mallGrid');
+            const emptyState = document.getElementById('emptyState');
+
+            if (filteredMalls.length === 0) {
+                mallGrid.style.display = 'none';
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            mallGrid.style.display = 'grid';
+            emptyState.style.display = 'none';
+
+            mallGrid.innerHTML = filteredMalls.map(mall => `
+                <a href="${mall.url}" class="mall-card" target="_blank" data-id="${mall.id}">
+                    ${mall.popular ? '<div class="hot-badge">🔥 HOT</div>' : ''}
+                    
+                    <button class="favorite-btn ${favorites.includes(mall.id) ? 'active' : ''}" 
+                            onclick="event.preventDefault(); event.stopPropagation(); toggleFavorite(${mall.id})">
+                        ${favorites.includes(mall.id) ? '⭐' : '☆'}
+                    </button>
+                    
+                    <div class="mall-logo">${mall.logo}</div>
+                    <div class="mall-name">${mall.name}</div>
+                    <div class="mall-category">${mall.category}</div>
+                </a>
+            `).join('');
+        }
+
+        // ==========================================
+        // 🎯 즐겨찾기 토글
+        // ==========================================
+        function toggleFavorite(mallId) {
+            const index = favorites.indexOf(mallId);
+            if (index > -1) {
+                favorites.splice(index, 1);
+            } else {
+                favorites.push(mallId);
+            }
+            localStorage.setItem('ib_favorites', JSON.stringify(favorites));
+            renderMalls();
+        }
+
+        // ==========================================
+        // 🎯 탭 전환
+        // ==========================================
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentTab = btn.dataset.tab;
+                renderMalls();
+            });
+        });
+
+        // ==========================================
+        // 🎯 검색
+        // ==========================================
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            searchQuery = e.target.value;
+            renderMalls();
+        });
+
+        // ==========================================
+        // 🎯 PWA 설치
+        // ==========================================
+        let deferredPrompt;
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            
+            // 설치 배너 표시 (한 번만)
+            if (!localStorage.getItem('ib_install_dismissed')) {
+                document.getElementById('installBanner').classList.add('show');
+            }
+        });
+
+        document.getElementById('installBtn').addEventListener('click', async () => {
+            if (!deferredPrompt) return;
+            
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            
+            if (outcome === 'accepted') {
+                console.log('PWA 설치 완료!');
+            }
+            
+            deferredPrompt = null;
+            document.getElementById('installBanner').classList.remove('show');
+        });
+
+        document.getElementById('installClose').addEventListener('click', () => {
+            document.getElementById('installBanner').classList.remove('show');
+            localStorage.setItem('ib_install_dismissed', 'true');
+        });
+
+        // ==========================================
+        // 🎯 초기화
+        // ==========================================
+        createFilters();
+        renderMalls();
+
+        // Service Worker 등록
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js')
+                .then(() => console.log('Service Worker 등록 완료'))
+                .catch(() => console.log('Service Worker 등록 실패'));
+        }
+    </script>
+</body>
+</html>
