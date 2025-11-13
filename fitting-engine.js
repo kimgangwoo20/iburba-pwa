@@ -166,8 +166,11 @@ async function openCamera() {
         const video = document.getElementById('camera-video');
         video.srcObject = cameraStream;
         
-        // 모달 표시
-        document.getElementById('camera-modal').classList.remove('hidden');
+        // 모달 표시 (CSS 충돌 방지를 위해 직접 제어)
+        const modal = document.getElementById('camera-modal');
+        if (modal) {
+            modal.style.display = 'flex';
+        }
         
         console.log('✅ 카메라 열기 완료');
         
@@ -235,8 +238,11 @@ function closeCamera() {
         cameraStream = null;
     }
     
-    // 모달 숨기기
-    document.getElementById('camera-modal').classList.add('hidden');
+    // 모달 숨기기 (CSS 충돌 방지를 위해 직접 제어)
+    const modal = document.getElementById('camera-modal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
 }
 
 // ===== 3. 옷 사진 처리 =====
