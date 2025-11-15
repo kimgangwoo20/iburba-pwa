@@ -2,873 +2,572 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>iBurBa PWA - AI 가상 피팅</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iBurBa Shopping Hub - 전 세계 쇼핑몰 허브</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Malgun Gothic', sans-serif;
-            background: #f5f5f5;
-            overflow-x: hidden;
-            touch-action: pan-y;
-            height: 100vh;
-        }
-
-        /* 모바일 프레임 */
-        .mobile-frame {
-            max-width: 390px;
-            margin: 0 auto;
-            background: white;
-            height: 100vh;
-            position: relative;
-            box-shadow: 0 0 50px rgba(0,0,0,0.3);
-            overflow: hidden;
-        }
-
-        /* 상단 상태바 */
-        .status-bar {
-            height: 44px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 16px;
-            color: white;
-            font-size: 14px;
-            z-index: 100;
-        }
-
-        .status-bar .time {
-            font-weight: 600;
-        }
-
-        .status-bar .icons {
-            display: flex;
-            gap: 8px;
+            min-height: 100vh;
+            padding: 20px;
         }
 
         /* 헤더 */
         .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 20px 20px 30px;
+            text-align: center;
             color: white;
+            margin-bottom: 30px;
+            padding-top: 20px;
         }
 
         .header h1 {
-            font-size: 28px;
-            margin-bottom: 8px;
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
         }
 
         .header p {
+            font-size: 16px;
             opacity: 0.9;
-            font-size: 14px;
         }
 
-        /* 통계 */
-        .stats {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-top: 16px;
+        /* 컨테이너 */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
         }
 
-        .stat-card {
-            background: rgba(255,255,255,0.2);
-            padding: 12px;
-            border-radius: 12px;
-            text-align: center;
+        /* 검색 박스 */
+        .search-box {
+            margin-bottom: 30px;
         }
 
-        .stat-label {
-            font-size: 11px;
-            opacity: 0.9;
-            margin-bottom: 4px;
-        }
-
-        .stat-value {
-            font-size: 24px;
-            font-weight: bold;
-        }
-
-        /* 메인 컨텐츠 */
-        .content {
-            padding: 20px;
-            min-height: calc(100vh - 44px - 140px - 70px);
-            overflow-y: auto;
-        }
-
-        /* 안내 배너 */
-        .info-banner {
-            background: linear-gradient(135deg, #fff3bf 0%, #ffe69c 100%);
-            padding: 16px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            font-size: 14px;
-            line-height: 1.6;
-        }
-
-        .info-banner strong {
-            color: #f57c00;
-        }
-
-        /* 상품 그리드 */
-        .product-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin: 20px 0;
-        }
-
-        .product-card {
-            background: white;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            position: relative;
-            cursor: pointer;
-            transition: transform 0.3s;
-        }
-
-        .product-card:active {
-            transform: scale(0.95);
-        }
-
-        .product-image-container {
-            position: relative;
-            aspect-ratio: 1;
-            overflow: hidden;
-        }
-
-        .product-image {
+        .search-input {
             width: 100%;
-            height: 100%;
-            object-fit: cover;
+            padding: 15px 20px;
+            border: none;
+            border-radius: 15px;
+            font-size: 16px;
+            background: white;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
 
-        .product-info {
-            padding: 12px;
+        .search-input:focus {
+            outline: none;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
         }
 
-        .product-brand {
-            font-size: 11px;
-            color: #666;
-            margin-bottom: 4px;
+        /* 탭 */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            background: rgba(255,255,255,0.1);
+            padding: 10px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
         }
 
-        .product-name {
-            font-size: 13px;
-            font-weight: 500;
-            margin-bottom: 6px;
-            line-height: 1.3;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            line-clamp: 2;
-            overflow: hidden;
+        .tab-btn {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            background: transparent;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
         }
 
-        .product-price {
-            font-size: 15px;
-            font-weight: bold;
+        .tab-btn.active {
+            background: white;
             color: #667eea;
         }
 
-        /* 더블 탭 효과 */
-        .doubletap-hint {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(0,0,0,0.8);
+        /* 필터 */
+        .filters {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            border: 2px solid white;
+            background: transparent;
             color: white;
-            padding: 12px 20px;
-            border-radius: 25px;
             font-size: 14px;
+            font-weight: 600;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .filter-btn.active {
+            background: white;
+            color: #667eea;
+        }
+
+        /* 쇼핑몰 그리드 */
+        .mall-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .mall-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .mall-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .mall-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        .mall-name {
+            font-size: 18px;
             font-weight: bold;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s;
-            white-space: nowrap;
-            z-index: 20;
+            color: #333;
+            margin-bottom: 5px;
         }
 
-        .product-card.first-tap .doubletap-hint {
-            opacity: 1;
-            animation: pulse 0.5s ease-in-out;
+        .mall-tag {
+            display: inline-block;
+            padding: 4px 12px;
+            background: #f3f4f6;
+            color: #6b7280;
+            font-size: 12px;
+            border-radius: 12px;
+            margin-bottom: 15px;
         }
 
-        @keyframes pulse {
-            0%, 100% { transform: translate(-50%, -50%) scale(1); }
-            50% { transform: translate(-50%, -50%) scale(1.1); }
-        }
-
-        .doubletap-ring {
+        .mall-badge {
             position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 80px;
-            height: 80px;
-            border: 4px solid #667eea;
+            top: 10px;
+            left: 10px;
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .favorite-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: white;
+            border: 2px solid #e5e7eb;
             border-radius: 50%;
-            opacity: 0;
-            pointer-events: none;
-            z-index: 15;
-        }
-
-        .product-card.success-tap .doubletap-ring {
-            animation: tapSuccess 0.6s ease-out;
-        }
-
-        @keyframes tapSuccess {
-            0% {
-                opacity: 1;
-                transform: translate(-50%, -50%) scale(0.5);
-            }
-            100% {
-                opacity: 0;
-                transform: translate(-50%, -50%) scale(2.5);
-            }
-        }
-
-        /* 스와이프 효과 */
-        .swipe-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(90deg, 
-                transparent 0%, 
-                rgba(102, 126, 234, 0.3) 50%, 
-                transparent 100%);
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s;
-            z-index: 5;
-        }
-
-        .product-card.swiping .swipe-overlay {
-            opacity: 1;
-        }
-
-        .swipe-icon {
-            position: absolute;
-            top: 50%;
-            right: 12px;
-            transform: translateY(-50%);
-            width: 48px;
-            height: 48px;
-            background: #667eea;
-            border-radius: 50%;
+            width: 32px;
+            height: 32px;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            font-size: 24px;
-            opacity: 0;
-            pointer-events: none;
-            transition: all 0.3s;
-            z-index: 10;
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.5);
-        }
-
-        .product-card.swiping .swipe-icon {
-            opacity: 1;
-            animation: swipeIcon 0.5s ease-in-out infinite;
-        }
-
-        @keyframes swipeIcon {
-            0%, 100% { transform: translateY(-50%) translateX(0); }
-            50% { transform: translateY(-50%) translateX(-8px); }
-        }
-
-        .swipe-progress {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            height: 4px;
-            background: #667eea;
-            width: 0%;
-            transition: width 0.1s linear;
-            z-index: 10;
-        }
-
-        /* 하단 네비게이션 */
-        .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 100%;
-            max-width: 390px;
-            height: 70px;
-            background: white;
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
-            padding: 0 20px;
-            z-index: 90;
-        }
-
-        .nav-item {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-            padding: 10px;
             cursor: pointer;
-            border-radius: 12px;
+            font-size: 16px;
             transition: all 0.2s;
         }
 
-        .nav-item:active {
-            background: #f0f0f0;
-            transform: scale(0.9);
+        .favorite-btn:hover {
+            border-color: #fbbf24;
+            transform: scale(1.1);
         }
 
-        .nav-item.active {
-            color: #667eea;
+        .favorite-btn.active {
+            background: #fbbf24;
+            border-color: #fbbf24;
         }
 
-        .nav-icon {
-            font-size: 24px;
-        }
-
-        .nav-label {
-            font-size: 11px;
-        }
-
-        /* Toast */
-        .toast {
-            position: fixed;
-            bottom: 90px;
-            left: 50%;
-            transform: translateX(-50%) translateY(100px);
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 16px 32px;
-            border-radius: 50px;
-            font-size: 15px;
-            font-weight: 600;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
-            z-index: 1000;
-            opacity: 0;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            max-width: 350px;
-        }
-
-        .toast.show {
-            opacity: 1;
-            transform: translateX(-50%) translateY(0);
-        }
-
-        .toast-icon {
-            font-size: 20px;
-        }
-
-        /* 튜토리얼 오버레이 */
-        .tutorial-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.9);
-            z-index: 2000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s;
-        }
-
-        .tutorial-overlay.show {
-            opacity: 1;
-            pointer-events: all;
-        }
-
-        .tutorial-content {
-            background: white;
-            padding: 32px 24px;
-            border-radius: 20px;
-            max-width: 400px;
+        /* 빈 상태 */
+        .empty-state {
             text-align: center;
+            color: white;
+            padding: 60px 20px;
         }
 
-        .tutorial-content h2 {
-            font-size: 24px;
-            margin-bottom: 16px;
-            color: #333;
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
         }
 
-        .tutorial-methods {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-            margin: 24px 0;
-        }
-
-        .tutorial-method {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            padding: 16px;
-            border-radius: 12px;
-            text-align: left;
-        }
-
-        .tutorial-method-title {
+        .empty-state-text {
             font-size: 18px;
-            font-weight: bold;
-            margin-bottom: 8px;
+            opacity: 0.8;
+        }
+
+        /* 설치 배너 */
+        .install-banner {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            padding: 15px 20px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 15px;
+            max-width: 90%;
+            z-index: 998;
         }
 
-        .tutorial-method-desc {
-            font-size: 14px;
-            color: #666;
-            line-height: 1.5;
+        .install-icon {
+            font-size: 32px;
         }
 
-        .tutorial-close {
-            width: 100%;
-            padding: 14px;
+        .install-text h3 {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 2px;
+        }
+
+        .install-text p {
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .install-btn {
+            padding: 10px 20px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            border-radius: 12px;
-            font-size: 16px;
+            border-radius: 10px;
             font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .install-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .install-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #9ca3af;
             cursor: pointer;
         }
 
-        .tutorial-close:active {
-            transform: scale(0.95);
+        /* 로딩 */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: white;
         }
 
-        /* 데스크톱 안내 */
-        @media (min-width: 768px) {
-            body::before {
-                content: '📱 모바일 화면에서 보시거나, 브라우저 창을 좁게 조절해주세요';
-                position: fixed;
-                top: 20px;
-                left: 50%;
-                transform: translateX(-50%);
-                background: #667eea;
-                color: white;
-                padding: 12px 24px;
-                border-radius: 25px;
-                font-size: 14px;
-                z-index: 10000;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        .spinner {
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top: 3px solid white;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* 반응형 */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 28px;
+            }
+
+            .mall-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                gap: 15px;
             }
         }
     </style>
 </head>
 <body>
-    <!-- 튜토리얼 오버레이 -->
-    <div class="tutorial-overlay show" id="tutorial">
-        <div class="tutorial-content">
-            <h2>🎯 사용 방법</h2>
-            <p style="font-size: 14px; color: #666; margin-bottom: 24px;">
-                상품을 iBurBa에 등록하는 <strong>두 가지 방법</strong>이 있습니다!
-            </p>
-            
-            <div class="tutorial-methods">
-                <div class="tutorial-method">
-                    <div class="tutorial-method-title">
-                        <span style="font-size: 28px;">👆👆</span>
-                        <span>더블 탭</span>
-                    </div>
-                    <div class="tutorial-method-desc">
-                        상품을 <strong>빠르게 두 번</strong> 탭하세요.<br>
-                        빠르고 직관적!
-                    </div>
-                </div>
 
-                <div class="tutorial-method">
-                    <div class="tutorial-method-title">
-                        <span style="font-size: 28px;">👉</span>
-                        <span>스와이프</span>
-                    </div>
-                    <div class="tutorial-method-desc">
-                        상품을 <strong>왼쪽에서 오른쪽</strong>으로 쓸어보세요.<br>
-                        신중하고 확실!
-                    </div>
-                </div>
-            </div>
+    <!-- 헤더 -->
+    <div class="header">
+        <h1>🛍️ iBurBa</h1>
+        <p>전 세계 쇼핑몰 허브</p>
+    </div>
 
-            <button class="tutorial-close" onclick="closeTutorial()">
-                시작하기 🚀
-            </button>
+   <!-- 🔥 큰 AI 피팅 버튼 -->
+   <div class="container" style="margin-bottom: 20px;">
+       <a href="fitting.html" style="
+           display: block;
+           background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+           color: white;
+           padding: 20px;
+           border-radius: 20px;
+           text-align: center;
+           text-decoration: none;
+           box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+           font-size: 20px;
+           font-weight: bold;
+           margin-bottom: 20px;
+       ">
+           <div style="font-size: 48px; margin-bottom: 10px;">🎨</div>
+           <div>AI 가상 피팅 시작하기</div>
+           <div style="font-size: 14px; opacity: 0.9; margin-top: 8px;">
+               내 사진에 옷을 입혀보세요
+           </div>
+       </a>
+   </div>
+
+    <!-- 컨테이너 -->
+    <div class="container">
+        <!-- 검색 박스 -->
+        <div class="search-box">
+            <input 
+                type="search" 
+                class="search-input" 
+                id="searchInput"
+                placeholder="🔍 쇼핑몰 검색..."
+            >
+        </div>
+
+        <!-- 탭 -->
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="all">전체</button>
+            <button class="tab-btn" data-tab="favorites">⭐ 즐겨찾기</button>
+        </div>
+
+        <!-- 필터 -->
+        <div class="filters" id="filters">
+            <button class="filter-btn active" data-country="all">🌍 전체</button>
+            <button class="filter-btn" data-country="kr">🇰🇷 한국</button>
+            <button class="filter-btn" data-country="us">🇺🇸 미국</button>
+            <button class="filter-btn" data-country="jp">🇯🇵 일본</button>
+            <button class="filter-btn" data-country="cn">🇨🇳 중국</button>
+            <button class="filter-btn" data-country="eu">🇪🇺 유럽</button>
+        </div>
+
+        <!-- 쇼핑몰 그리드 -->
+        <div class="mall-grid" id="mallGrid">
+            <!-- JavaScript로 동적 생성 -->
+        </div>
+
+        <!-- 빈 상태 -->
+        <div class="empty-state" id="emptyState" style="display: none;">
+            <div class="empty-state-icon">🔍</div>
+            <div class="empty-state-text">검색 결과가 없습니다</div>
         </div>
     </div>
 
-    <!-- 모바일 프레임 -->
-    <div class="mobile-frame">
-        <!-- 상태바 -->
-        <div class="status-bar">
-            <div class="time" id="currentTime">9:41</div>
-            <div class="icons">
-                <span>📶</span>
-                <span>📡</span>
-                <span>🔋</span>
-            </div>
+    <!-- 설치 배너 -->
+    <div class="install-banner" id="installBanner" style="display: none;">
+        <div class="install-icon">📱</div>
+        <div class="install-text">
+            <h3>홈 화면에 추가</h3>
+            <p>앱처럼 빠르게 접속하세요</p>
         </div>
-
-        <!-- 헤더 -->
-        <div class="header">
-            <h1>👕 iBurBa</h1>
-            <p>AI 가상 피팅 - 편한 방법으로 등록하세요!</p>
-            
-            <div class="stats">
-                <div class="stat-card">
-                    <div class="stat-label">👆👆 더블 탭</div>
-                    <div class="stat-value" id="doubleTapCount">0</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">👉 스와이프</div>
-                    <div class="stat-value" id="swipeCount">0</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 메인 컨텐츠 -->
-        <div class="content" id="mainContent">
-            <!-- 안내 배너 -->
-            <div class="info-banner">
-                <strong>💡 Tip:</strong><br>
-                <strong>더블 탭</strong> 또는 <strong>스와이프</strong> - 편한 방법을 선택하세요!<br>
-                두 가지 모두 사용 가능합니다.
-            </div>
-
-            <!-- 상품 그리드 -->
-            <div class="product-grid">
-                <div class="product-card" data-id="1">
-                    <div class="product-image-container">
-                        <div class="doubletap-hint">한 번 더! 👆</div>
-                        <div class="doubletap-ring"></div>
-                        <div class="swipe-overlay"></div>
-                        <div class="swipe-icon">✨</div>
-                        <div class="swipe-progress"></div>
-                        <img src="https://image.msscdn.net/images/goods_img/20231127/3680329/3680329_17012282755943_500.jpg" class="product-image" alt="후드">
-                    </div>
-                    <div class="product-info">
-                        <div class="product-brand">앤더슨벨</div>
-                        <div class="product-name">클래식 로고 후드 티셔츠</div>
-                        <div class="product-price">69,300원</div>
-                    </div>
-                </div>
-
-                <div class="product-card" data-id="2">
-                    <div class="product-image-container">
-                        <div class="doubletap-hint">한 번 더! 👆</div>
-                        <div class="doubletap-ring"></div>
-                        <div class="swipe-overlay"></div>
-                        <div class="swipe-icon">✨</div>
-                        <div class="swipe-progress"></div>
-                        <img src="https://image.msscdn.net/images/goods_img/20240109/3755282/3755282_17046991683652_500.jpg" class="product-image" alt="가디건">
-                    </div>
-                    <div class="product-info">
-                        <div class="product-brand">마르디 메크르디</div>
-                        <div class="product-name">울 블렌드 가디건</div>
-                        <div class="product-price">89,250원</div>
-                    </div>
-                </div>
-
-                <div class="product-card" data-id="3">
-                    <div class="product-image-container">
-                        <div class="doubletap-hint">한 번 더! 👆</div>
-                        <div class="doubletap-ring"></div>
-                        <div class="swipe-overlay"></div>
-                        <div class="swipe-icon">✨</div>
-                        <div class="swipe-progress"></div>
-                        <img src="https://image.msscdn.net/images/goods_img/20231019/3608758/3608758_16980186464773_500.jpg" class="product-image" alt="청바지">
-                    </div>
-                    <div class="product-info">
-                        <div class="product-brand">리바이스</div>
-                        <div class="product-name">501 오리지널 핏 데님</div>
-                        <div class="product-price">129,000원</div>
-                    </div>
-                </div>
-
-                <div class="product-card" data-id="4">
-                    <div class="product-image-container">
-                        <div class="doubletap-hint">한 번 더! 👆</div>
-                        <div class="doubletap-ring"></div>
-                        <div class="swipe-overlay"></div>
-                        <div class="swipe-icon">✨</div>
-                        <div class="swipe-progress"></div>
-                        <img src="https://image.msscdn.net/images/goods_img/20231201/3695123/3695123_17013069806988_500.jpg" class="product-image" alt="재킷">
-                    </div>
-                    <div class="product-info">
-                        <div class="product-brand">디스커버리</div>
-                        <div class="product-name">패딩 라이트 재킷</div>
-                        <div class="product-price">95,400원</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 하단 네비게이션 -->
-        <div class="bottom-nav">
-            <div class="nav-item active">
-                <div class="nav-icon">🏠</div>
-                <div class="nav-label">홈</div>
-            </div>
-            <div class="nav-item">
-                <div class="nav-icon">📸</div>
-                <div class="nav-label">피팅</div>
-            </div>
-            <div class="nav-item">
-                <div class="nav-icon">❤️</div>
-                <div class="nav-label">저장</div>
-            </div>
-            <div class="nav-item">
-                <div class="nav-icon">👤</div>
-                <div class="nav-label">프로필</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Toast -->
-    <div class="toast" id="toast">
-        <span class="toast-icon"></span>
-        <span class="toast-text"></span>
+        <button class="install-btn" id="installBtn">설치</button>
+        <button class="install-close" id="installClose">×</button>
     </div>
 
     <script>
         // ==========================================
-        // 전역 변수
+        // 🎯 쇼핑몰 데이터
         // ==========================================
-        let doubleTapCount = 0;
-        let swipeCount = 0;
+        const shoppingMalls = [
+            // 한국
+            { id: 'musinsa', name: '무신사', icon: '👕', country: 'kr', tag: '패션', url: 'https://www.musinsa.com', hot: true },
+            { id: 'ably', name: '에이블리', icon: '👗', country: 'kr', tag: '패션', url: 'https://a-bly.com', hot: true },
+            { id: 'zigzag', name: '지그재그', icon: '⚡', country: 'kr', tag: '패션', url: 'https://zigzag.kr', hot: true },
+            { id: 'wconcept', name: 'W컨셉', icon: '🎨', country: 'kr', tag: '패션', url: 'https://www.wconcept.co.kr' },
+            { id: '29cm', name: '29CM', icon: '🌿', country: 'kr', tag: '패션', url: 'https://www.29cm.co.kr' },
+            { id: 'coupang', name: '쿠팡', icon: '🎁', country: 'kr', tag: '종합', url: 'https://www.coupang.com', hot: true },
+            { id: 'ssfshop', name: 'SSF샵', icon: '💎', country: 'kr', tag: '명품', url: 'https://www.ssfshop.com' },
+            { id: 'hlfshop', name: '하프클럽', icon: '✨', country: 'kr', tag: '종합', url: 'https://www.hlfshop.com' },
+
+            // 미국
+            { id: 'amazon', name: 'Amazon', icon: '📦', country: 'us', tag: '종합', url: 'https://www.amazon.com' },
+            { id: 'zara', name: 'Zara', icon: '🏪', country: 'us', tag: '패션', url: 'https://www.zara.com' },
+            { id: 'hm', name: 'H&M', icon: '👔', country: 'us', tag: '패션', url: 'https://www2.hm.com' },
+            { id: 'asos', name: 'ASOS', icon: '🛍️', country: 'us', tag: '패션', url: 'https://www.asos.com' },
+            { id: 'forever21', name: 'Forever 21', icon: '💃', country: 'us', tag: '패션', url: 'https://www.forever21.com' },
+            { id: 'gap', name: 'Gap', icon: '👖', country: 'us', tag: '패션', url: 'https://www.gap.com' },
+
+            // 일본
+            { id: 'uniqlo', name: 'Uniqlo', icon: '🧥', country: 'jp', tag: '패션', url: 'https://www.uniqlo.com' },
+            { id: 'gu', name: 'GU', icon: '👚', country: 'jp', tag: '패션', url: 'https://www.gu-global.com' },
+            { id: 'zozo', name: 'Zozo', icon: '🎌', country: 'jp', tag: '패션', url: 'https://zozo.jp' },
+            { id: 'rakuten', name: 'Rakuten', icon: '🏯', country: 'jp', tag: '종합', url: 'https://www.rakuten.co.jp' },
+
+            // 중국
+            { id: 'taobao', name: 'Taobao', icon: '🐱', country: 'cn', tag: '종합', url: 'https://www.taobao.com' },
+            { id: 'tmall', name: 'Tmall', icon: '🏬', country: 'cn', tag: '종합', url: 'https://www.tmall.com' },
+            { id: 'jd', name: 'JD.com', icon: '🐕', country: 'cn', tag: '종합', url: 'https://www.jd.com' },
+            { id: 'shein', name: 'Shein', icon: '💫', country: 'cn', tag: '패션', url: 'https://www.shein.com' },
+
+            // 유럽
+            { id: 'zalando', name: 'Zalando', icon: '🦓', country: 'eu', tag: '패션', url: 'https://www.zalando.com' },
+            { id: 'aboutyou', name: 'About You', icon: '💙', country: 'eu', tag: '패션', url: 'https://www.aboutyou.com' },
+            { id: 'boohoo', name: 'Boohoo', icon: '🎉', country: 'eu', tag: '패션', url: 'https://www.boohoo.com' },
+            { id: 'prettylittlething', name: 'PLT', icon: '💕', country: 'eu', tag: '패션', url: 'https://www.prettylittlething.com' },
+        ];
 
         // ==========================================
-        // 현재 시간 표시
+        // 🔧 전역 상태
         // ==========================================
-        function updateTime() {
-            const now = new Date();
-            const hours = String(now.getHours()).padStart(2, '0');
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            document.getElementById('currentTime').textContent = `${hours}:${minutes}`;
-        }
-        updateTime();
-        setInterval(updateTime, 60000);
+        let currentTab = 'all';
+        let currentCountry = 'all';
+        let favorites = JSON.parse(localStorage.getItem('iburba_favorites') || '[]');
 
         // ==========================================
-        // 튜토리얼
+        // 🎨 쇼핑몰 렌더링
         // ==========================================
-        function closeTutorial() {
-            document.getElementById('tutorial').classList.remove('show');
-            // 튜토리얼을 본 적 있는지 저장 (다음에는 안 보임)
-            localStorage.setItem('tutorialSeen', 'true');
-        }
+        function renderMalls() {
+            const grid = document.getElementById('mallGrid');
+            const emptyState = document.getElementById('emptyState');
+            const searchQuery = document.getElementById('searchInput').value.toLowerCase();
 
-        // 이미 튜토리얼을 본 경우 바로 닫기
-        if (localStorage.getItem('tutorialSeen') === 'true') {
-            document.getElementById('tutorial').classList.remove('show');
-        }
+            let filteredMalls = shoppingMalls.filter(mall => {
+                // 탭 필터
+                if (currentTab === 'favorites' && !favorites.includes(mall.id)) {
+                    return false;
+                }
 
-        // ==========================================
-        // Toast 표시
-        // ==========================================
-        function showToast(message, icon) {
-            const toast = document.getElementById('toast');
-            const iconEl = toast.querySelector('.toast-icon');
-            const textEl = toast.querySelector('.toast-text');
-            
-            iconEl.textContent = icon;
-            textEl.textContent = message;
-            
-            toast.classList.add('show');
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 2500);
-        }
+                // 국가 필터
+                if (currentCountry !== 'all' && mall.country !== currentCountry) {
+                    return false;
+                }
 
-        // ==========================================
-        // 통계 업데이트
-        // ==========================================
-        function updateStats() {
-            document.getElementById('doubleTapCount').textContent = doubleTapCount;
-            document.getElementById('swipeCount').textContent = swipeCount;
-        }
+                // 검색 필터
+                if (searchQuery && !mall.name.toLowerCase().includes(searchQuery)) {
+                    return false;
+                }
 
-        // ==========================================
-        // 하이브리드 터치 핸들러 클래스
-        // ==========================================
-        class HybridTouchHandler {
-            constructor(card) {
-                this.card = card;
-                this.productName = card.querySelector('.product-name').textContent;
-                
-                // 더블 탭 변수
-                this.lastTap = 0;
-                
-                // 스와이프 변수
-                this.startX = 0;
-                this.currentX = 0;
-                this.isSwiping = false;
-                
-                this.init();
+                return true;
+            });
+
+            if (filteredMalls.length === 0) {
+                grid.style.display = 'none';
+                emptyState.style.display = 'block';
+                return;
             }
-            
-            init() {
-                this.initDoubleTap();
-                this.initSwipe();
-            }
-            
-            // ==========================================
-            // 더블 탭 초기화
-            // ==========================================
-            initDoubleTap() {
-                this.card.addEventListener('click', (e) => {
-                    // 스와이프 중이면 더블 탭 무시
-                    if (this.isSwiping) return;
-                    
-                    const currentTime = Date.now();
-                    const tapLength = currentTime - this.lastTap;
-                    
-                    if (tapLength < 300 && tapLength > 0) {
-                        // 더블 탭 성공!
-                        this.onDoubleTap();
-                    } else {
-                        // 첫 번째 탭
-                        this.card.classList.add('first-tap');
-                        setTimeout(() => {
-                            this.card.classList.remove('first-tap');
-                        }, 1000);
-                    }
-                    
-                    this.lastTap = currentTime;
-                });
-            }
-            
-            // ==========================================
-            // 스와이프 초기화
-            // ==========================================
-            initSwipe() {
-                this.card.addEventListener('touchstart', (e) => {
-                    this.startX = e.touches[0].clientX;
-                    this.currentX = this.startX;
-                    this.isSwiping = false;
-                }, { passive: true });
-                
-                this.card.addEventListener('touchmove', (e) => {
-                    this.currentX = e.touches[0].clientX;
-                    const diff = this.currentX - this.startX;
-                    
-                    // 스와이프 시작 (30px 이상)
-                    if (diff > 30 && !this.isSwiping) {
-                        this.isSwiping = true;
-                        this.card.classList.add('swiping');
-                        
-                        // 더블 탭 타이머 리셋
-                        this.lastTap = 0;
-                    }
-                    
-                    // 진행도 표시
-                    if (this.isSwiping) {
-                        const progress = Math.min((diff / 150) * 100, 100);
-                        this.card.querySelector('.swipe-progress').style.width = progress + '%';
-                    }
-                    
-                    // 스와이프 취소
-                    if (diff < 30 && this.isSwiping) {
-                        this.card.classList.remove('swiping');
-                        this.isSwiping = false;
-                        this.card.querySelector('.swipe-progress').style.width = '0%';
-                    }
-                }, { passive: true });
-                
-                this.card.addEventListener('touchend', (e) => {
-                    const diff = this.currentX - this.startX;
-                    
-                    // 스와이프 완료 (150px 이상)
-                    if (this.isSwiping && diff > 150) {
-                        this.onSwipe();
-                    } else if (this.isSwiping) {
-                        // 스와이프 취소
-                        this.card.classList.remove('swiping');
-                        this.card.querySelector('.swipe-progress').style.width = '0%';
-                    }
-                    
-                    this.isSwiping = false;
-                }, { passive: true });
-                
-                this.card.addEventListener('touchcancel', (e) => {
-                    this.card.classList.remove('swiping');
-                    this.card.querySelector('.swipe-progress').style.width = '0%';
-                    this.isSwiping = false;
-                });
-            }
-            
-            // ==========================================
-            // 더블 탭 이벤트
-            // ==========================================
-            onDoubleTap() {
-                this.card.classList.remove('first-tap');
-                this.card.classList.add('success-tap');
-                
-                doubleTapCount++;
-                updateStats();
-                
-                showToast(`더블 탭으로 등록! ${this.productName}`, '👆👆');
-                
-                setTimeout(() => {
-                    this.card.classList.remove('success-tap');
-                }, 600);
-            }
-            
-            // ==========================================
-            // 스와이프 이벤트
-            // ==========================================
-            onSwipe() {
-                swipeCount++;
-                updateStats();
-                
-                showToast(`스와이프로 등록! ${this.productName}`, '👉');
-                
-                setTimeout(() => {
-                    this.card.classList.remove('swiping');
-                    this.card.querySelector('.swipe-progress').style.width = '0%';
-                }, 300);
-            }
+
+            grid.style.display = 'grid';
+            emptyState.style.display = 'none';
+
+            grid.innerHTML = filteredMalls.map(mall => `
+                <div class="mall-card" onclick="openMall('${mall.url}')">
+                    ${mall.hot ? '<div class="mall-badge">🔥 HOT</div>' : ''}
+                    <button 
+                        class="favorite-btn ${favorites.includes(mall.id) ? 'active' : ''}"
+                        onclick="event.stopPropagation(); toggleFavorite('${mall.id}')"
+                    >
+                        ${favorites.includes(mall.id) ? '⭐' : '☆'}
+                    </button>
+                    <div class="mall-icon">${mall.icon}</div>
+                    <div class="mall-name">${mall.name}</div>
+                    <div class="mall-tag">${mall.tag}</div>
+                </div>
+            `).join('');
         }
 
         // ==========================================
-        // 모든 상품 카드에 핸들러 추가
+        // 🔧 유틸리티 함수
         // ==========================================
-        document.querySelectorAll('.product-card').forEach(card => {
-            new HybridTouchHandler(card);
-        });
+        function openMall(url) {
+            window.open(url, '_blank');
+        }
+
+        function toggleFavorite(mallId) {
+            if (favorites.includes(mallId)) {
+                favorites = favorites.filter(id => id !== mallId);
+            } else {
+                favorites.push(mallId);
+            }
+            localStorage.setItem('iburba_favorites', JSON.stringify(favorites));
+            renderMalls();
+        }
 
         // ==========================================
-        // 네비게이션 버튼
+        // 🎯 이벤트 리스너
         // ==========================================
-        document.querySelectorAll('.nav-item').forEach(item => {
-            item.addEventListener('click', function() {
-                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-                this.classList.add('active');
+        
+        // 탭 전환
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentTab = btn.dataset.tab;
+                renderMalls();
             });
         });
+
+        // 국가 필터
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentCountry = btn.dataset.country;
+                renderMalls();
+            });
+        });
+
+        // 검색
+        document.getElementById('searchInput').addEventListener('input', renderMalls);
+
+        // 설치 배너 닫기
+        document.getElementById('installClose')?.addEventListener('click', () => {
+            document.getElementById('installBanner').style.display = 'none';
+            localStorage.setItem('iburba_banner_closed', 'true');
+        });
+
+        // PWA 설치
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            
+            if (!localStorage.getItem('iburba_banner_closed')) {
+                document.getElementById('installBanner').style.display = 'flex';
+            }
+        });
+
+        document.getElementById('installBtn')?.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                console.log(`User response: ${outcome}`);
+                deferredPrompt = null;
+                document.getElementById('installBanner').style.display = 'none';
+            }
+        });
+
+        // ==========================================
+        // 🚀 초기화
+        // ==========================================
+        renderMalls();
     </script>
 </body>
 </html>
